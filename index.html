@@ -3,41 +3,28 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Form</title>
+  <title>Payment Page</title>
   <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-2quTQbcrMm5Y5oag"></script>
 </head>
 <body>
 
-  <!-- Form for user to key in gross amount -->
-  <form id="payment-form">
-    <label for="gross-amount">Gross Amount:</label>
-    <input type="number" id="gross-amount" name="gross-amount" required>
-    <button type="submit" id="pay-button">Pay</button>
-  </form>
+  <!-- "Pay" Button -->
+  <button id="pay-button">Pay</button>
 
-  <!-- Div where the Snap form will be embedded -->
+  <!-- Container for Snap payment form -->
   <div id="snap-container"></div>
 
   <script type="text/javascript">
-    document.getElementById('payment-form').addEventListener('submit', function(event) {
-      event.preventDefault(); // Prevent form submission
-
-      const grossAmount = document.getElementById('gross-amount').value;
-      const orderId = Math.floor(1000000000 + Math.random() * 9000000000).toString();  // Generate random order ID
-
-      // Make request to backend to generate Snap token
+    document.getElementById('pay-button').addEventListener('click', function() {
+      // Trigger the backend to generate Snap token
       fetch('https://md-h3i8.onrender.com/generate-snap-token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          order_id: orderId, 
-          gross_amount: grossAmount 
-        })
+        headers: { 'Content-Type': 'application/json' }
       })
       .then(response => response.json())
       .then(data => {
         if (data.token) {
-          // Embed the Snap payment form using the token
+          // Use the Snap token to embed the Snap payment form
           window.snap.embed(data.token, {
             embedId: 'snap-container',
             onSuccess: function (result) {
@@ -57,7 +44,7 @@
             }
           });
         } else {
-          alert('Failed to generate Snap token. Please try again.');
+          alert('Failed to generate Snap token.');
         }
       })
       .catch(error => {
