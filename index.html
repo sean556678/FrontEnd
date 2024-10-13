@@ -8,18 +8,37 @@
 </head>
 <body>
 
-  <!-- "Pay" Button -->
-  <button id="pay-button">Pay</button>
+  <!-- Form to enter gross amount -->
+  <form id="payment-form">
+    <label for="gross-amount">Enter Gross Amount:</label>
+    <input type="number" id="gross-amount" name="gross-amount" required>
+    <button type="button" id="pay-button">Pay</button>
+  </form>
 
   <!-- Container for Snap payment form -->
   <div id="snap-container"></div>
 
   <script type="text/javascript">
     document.getElementById('pay-button').addEventListener('click', function() {
-      // Trigger the backend to generate Snap token
+      const grossAmount = document.getElementById('gross-amount').value;  // Get the user input value for gross amount
+
+      // Check if the gross amount is provided
+      if (!grossAmount || grossAmount <= 0) {
+        alert('Please enter a valid gross amount.');
+        return;
+      }
+
+      // Generate random order ID
+      const orderId = Math.floor(1000000000 + Math.random() * 9000000000).toString();  
+
+      // Trigger the backend to generate Snap token with the user-entered gross amount
       fetch('https://md-h3i8.onrender.com/generate-snap-token', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' }
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: orderId,
+          gross_amount: grossAmount
+        })
       })
       .then(response => response.json())
       .then(data => {
