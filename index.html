@@ -12,37 +12,39 @@
 
   <script type="text/javascript">
     window.onload = function () {
-      // Fetch the Snap token from the backend
-        fetch('https://md-h3i8.onrender.com/authorize', {
-	    //fetch('http://localhost:3000/authorize', {  // Fixed URL
+      const orderId = Math.floor(1000000000 + Math.random() * 9000000000).toString();  // Generate random order ID
+      
+      // Call the backend to generate Snap token
+      fetch('http://localhost:3000/generate-snap-token', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          order_id: Math.floor(1000000000 + Math.random() * 9000000000).toString(),
-          //gross_amount: 20000
-        })
+        body: JSON.stringify({ order_id: orderId })
       })
       .then(response => response.json())
       .then(data => {
-        // Use the Snap token to embed the Snap payment form
-        window.snap.embed(data.token, {
-          embedId: 'snap-container',
-          onSuccess: function (result) {
-            alert("Payment successful!");
-            console.log(result);
-          },
-          onPending: function (result) {
-            alert("Waiting for your payment!");
-            console.log(result);
-          },
-          onError: function (result) {
-            alert("Payment failed!");
-            console.log(result);
-          },
-          onClose: function () {
-            alert("Payment popup closed.");
-          }
-        });
+        if (data.token) {
+          // Use the Snap token to embed the Snap payment form
+          window.snap.embed(data.token, {
+            embedId: 'snap-container',
+            onSuccess: function (result) {
+              alert("Payment successful!");
+              console.log(result);
+            },
+            onPending: function (result) {
+              alert("Waiting for your payment!");
+              console.log(result);
+            },
+            onError: function (result) {
+              alert("Payment failed!");
+              console.log(result);
+            },
+            onClose: function () {
+              alert("Payment popup closed.");
+            }
+          });
+        } else {
+          console.error('Failed to retrieve Snap token:', data);
+        }
       })
       .catch(error => console.error('Error fetching token:', error));
     };
