@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Payment Page</title>
+  <title>Payment Page with Formstack</title>
   <script type="text/javascript" src="https://app.sandbox.midtrans.com/snap/snap.js" data-client-key="SB-Mid-client-2quTQbcrMm5Y5oag"></script>
 </head>
 <body>
 
-  <!-- Form to enter gross amount -->
+  <!-- Form to display the gross amount fetched from Formstack -->
   <form id="payment-form">
-    <label for="gross-amount">Enter Gross Amount:</label>
+    <label for="gross-amount">Gross Amount (from Formstack):</label>
     <input type="number" id="gross-amount" name="gross-amount" required>
     <button type="button" id="pay-button">Pay</button>
   </form>
@@ -19,17 +19,59 @@
   <div id="snap-container"></div>
 
   <script type="text/javascript">
-    document.getElementById('pay-button').addEventListener('click', function() {
-      const grossAmount = document.getElementById('gross-amount').value;  // Get the user input value for gross amount
+    // Function to fetch Formstack field value
+    async function fetchFormstackGrossAmount() {
+      try {
+        const formstackAccessToken = 'b6ac5df7e99cd441bcb58f6efbc19383';  // Replace with your actual token
+        const formId = '5966596';  // Form ID
+        const fieldId = '174985932';  // Field ID for gross amount
 
-      // Check if the gross amount is provided
+        // Call Formstack API to get the latest submission data
+        const response = await fetch(`https://www.formstack.com/api/v2/form/${formId}/submission.json`, {
+          headers: {
+            'Authorization': `Bearer ${formstackAccessToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        // Check if the response contains submissions
+        if (data.submissions && data.submissions.length > 0) {
+          const submission = data.submissions[0];  // Get the latest submission
+          const grossAmount = submission.data[fieldId];  // Extract the field value for gross amount
+
+          // Set the gross amount value in the input field
+          if (grossAmount) {
+            document.getElementById('gross-amount').value = grossAmount;
+          } else {
+            alert('Gross amount field is empty or not populated in Formstack.');
+          }
+        } else {
+          alert('No submissions found for this form.');
+        }
+      } catch (error) {
+        console.error('Error fetching Formstack gross amount:', error);
+        alert('Failed to fetch gross amount from Formstack.');
+      }
+    }
+
+    // Fetch the gross amount from Formstack when the page loads
+    window.onload = function() {
+      fetchFormstackGrossAmount();
+    };
+
+    // Handle the payment button click
+    document.getElementById('pay-button').addEventListener('click', function() {
+      const grossAmount = document.getElementById('gross-amount').value;  // Get the gross amount from input
+
       if (!grossAmount || grossAmount <= 0) {
         alert('Please enter a valid gross amount.');
         return;
       }
 
       // Generate random order ID
-      const orderId = Math.floor(1000000000 + Math.random() * 9000000000).toString();  
+      const orderId = Math.floor(1000000000 + Math.random() * 9000000000).toString();
 
       // Trigger the backend to generate Snap token with the user-entered gross amount
       fetch('https://md-h3i8.onrender.com/generate-snap-token', {
