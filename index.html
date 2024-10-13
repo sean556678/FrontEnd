@@ -15,7 +15,7 @@
       const orderId = Math.floor(1000000000 + Math.random() * 9000000000).toString();  // Generate random order ID
       
       // Call the backend to generate Snap token
-      fetch('http://localhost:3000/generate-snap-token', {
+      fetch('https://md-h3i8.onrender.com/authorize', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ order_id: orderId })
