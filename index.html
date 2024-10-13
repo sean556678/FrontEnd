@@ -13,8 +13,8 @@
   <script type="text/javascript">
     window.onload = function () {
       // Fetch the Snap token from the backend
-      //fetch('https://md-h3i8.onrender.com/generate-snap-token', {
-	    fetch('http://localhost:3000/authorize', {  // Fixed URL
+        fetch('https://md-h3i8.onrender.com/generate-snap-token', {
+	    //fetch('http://localhost:3000/authorize', {  // Fixed URL
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
